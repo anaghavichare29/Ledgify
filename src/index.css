@@ -3,7 +3,7 @@
 @import "tailwindcss";
 
 body{
-  background-color: black;
+  background-color: rgb(19, 23, 33);  
 }
 .max-h{
   max-height: 78px;

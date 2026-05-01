@@ -1,56 +1,75 @@
-import { PiForkKnifeBold } from "react-icons/pi";
-import { LuTrainFront } from "react-icons/lu";
-import { FaTicket } from "react-icons/fa6";
-import { FaHeartbeat } from "react-icons/fa";
-import { LuNotebookPen } from "react-icons/lu";
-import { GiShoppingBag } from "react-icons/gi";
-import { BiSolidCameraMovie } from "react-icons/bi";
-import { IoGrid } from "react-icons/io5";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-function ExpenseForm({ isOpen, closeModal, addExpense }) {
-  const categories = [
-    { id: uuidv4(), label: "Food", icon: <PiForkKnifeBold /> },
-    { id: uuidv4(), label: "Travel", icon: <LuTrainFront /> },
-    { id: uuidv4(), label: "Subscription", icon: <FaTicket /> },
-    { id: uuidv4(), label: "Health", icon: <FaHeartbeat /> },
-    { id: uuidv4(), label: "Shopping", icon: <GiShoppingBag /> },
-    { id: uuidv4(), label: "Stationary", icon: <LuNotebookPen /> },
-    {
-      id: uuidv4(),
-      label: "Entertainment",
-      icon: <BiSolidCameraMovie />,
-    },
-    { id: uuidv4(), label: "Others", icon: <IoGrid /> },
-  ];
+function ExpenseForm({
+  isOpen,
+  closeModal,
+  addExpense,
+  formDropdownOpen,
+  setFormDropdownOpen,
+  formCategory,
+  setFormCategory,
+  categories,
+  modalType,
+  handleEditExpense,
+  editExpense,
+}) {
   const [formData, setFormData] = useState({
     expenseName: "",
     amount: "",
     date: "",
   });
 
-  const [dropdownOpen, isDropdownOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
+  useEffect(() => {
+    if (modalType === "Edit" && editExpense) {
+      setFormData({
+        expenseName: String(editExpense.expenseName),
+        amount: String(editExpense.amount),        
+        date: String(editExpense.date),
+      });
+      const activeCat = categories.find(c => 
+      c.label === (typeof editExpense.category === 'string' ? editExpense.category : editExpense.category.label)
+    );
+    if (activeCat) setFormCategory(activeCat);     
+    } else {
+      setFormData({
+        expenseName: String(""),
+        amount: String(""),        
+        date: String(""),
+      });
+      setFormCategory(categories[0])
+    }
+  }, [modalType, editExpense]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault(); // STOP page reload
+    e.preventDefault();
+    if (modalType === "Add") {
+      const newExpense = {
+        id: uuidv4(),
+        expenseName: formData.expenseName,
+        amount: formData.amount,
+        date: formData.date,
+        category: formCategory,
+      };
 
-    const newExpense = {
-      id: uuidv4(),
-      expenseName: formData.expenseName,
-      amount: formData.amount,
-      date: formData.date,
-      category: selectedCategory, // This now contains the whole object {label, icon}
-    };
-
-    addExpense(newExpense);
-    // Reset form
+      addExpense(newExpense);
+    } else {
+      const updatedExpense = {
+        ...editExpense,
+        expenseName: formData.expenseName,
+        amount: formData.amount,
+        date: formData.date,
+        category: formCategory,
+      };
+      handleEditExpense(updatedExpense);
+    }
     setFormData({ expenseName: "", amount: "", date: "" });
+    closeModal();
   };
 
   return (
@@ -64,7 +83,7 @@ function ExpenseForm({ isOpen, closeModal, addExpense }) {
         <div className="relative bg-neutral-primary-soft border border-default rounded-base shadow-sm p-4 md:p-6">
           <div className="flex items-center justify-between border-b border-default pb-4 md:pb-5">
             <h3 className="text-lg font-medium text-heading">
-              Create new product
+              {modalType === "Add" ? "Create New Expense" : "Edit New Expense"}
             </h3>
             <button
               type="button"
@@ -125,7 +144,7 @@ function ExpenseForm({ isOpen, closeModal, addExpense }) {
                   onChange={handleChange}
                   id="price"
                   className="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
-                  placeholder="$2999"
+                  placeholder="₹2999"
                   required=""
                 />
               </div>
@@ -138,27 +157,25 @@ function ExpenseForm({ isOpen, closeModal, addExpense }) {
                 </label>
                 <button
                   type="button"
-                  onClick={() => isDropdownOpen(!dropdownOpen)}
+                  onClick={() => setFormDropdownOpen(!formDropdownOpen)}
                   className="flex items-center justify-between w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm hover:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-gray-500">
-                      {selectedCategory.icon}
-                    </span>
+                    <span className="text-gray-500">{formCategory.icon}</span>
                     <span className="font-medium text-gray-900">
-                      {selectedCategory.label}
+                      {formCategory.label}
                     </span>
                   </div>
                 </button>
-                {dropdownOpen && (
+                {formDropdownOpen && (
                   <div className="absolute h-45 z-20 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl overflow-y-auto">
                     {categories.map((category) => (
                       <button
                         type="button"
-                        key={category.id}
+                        key={category.label}
                         onClick={() => {
-                          setSelectedCategory(category);
-                          isDropdownOpen(false);
+                          setFormCategory(category);
+                          setFormDropdownOpen(false);
                         }}
                         className="flex items-center justify-between w-full px-4 py-3 text-sm hover:bg-blue-50 transition-colors"
                       >
@@ -212,7 +229,7 @@ function ExpenseForm({ isOpen, closeModal, addExpense }) {
                     d="M5 12h14m-7 7V5"
                   />
                 </svg>
-                Add new product
+                {modalType === "Add" ? "Add Expense" : "Edit Expense"}
               </button>
               <button
                 data-modal-hide="crud-modal"

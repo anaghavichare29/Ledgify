@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import logo from "../assets/ledgify-logo.png";
 function Header({openModal}) {
   const months = [
@@ -25,8 +25,8 @@ function Header({openModal}) {
   };
 
   return (
-    <nav className="fixed w-full z-20 top-0 start-0 shadow-lg shadow-yellow-200/20 h-[88px]">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between p-4">
+    <nav className="overflow-x-hidden w-full z-9999 top-0 start-0 shadow-xl">
+      <div className="flex flex-wrap items-center justify-between p-4">
         <a
           href="https://flowbite.com/"
           className="flex items-center space-x-3 rtl:space-x-reverse"
@@ -98,52 +98,7 @@ function Header({openModal}) {
             )}
           </div>
         </div>
-        <div
-          className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1"
-          id="navbar-sticky"
-        >
-          <form className="w-[350px] mx-auto">
-            <label
-              htmlFor="search"
-              className="block mb-2.5 text-sm font-medium text-heading sr-only "
-            >
-              Search
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                <svg
-                  className="w-4 h-4 text-body"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeWidth="2"
-                    d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"
-                  />
-                </svg>
-              </div>
-              <input
-                type="search"
-                id="search"
-                className="block w-full p-3 ps-9 bg-neutral-secondary-medium text-heading text-sm rounded-base shadow-xs placeholder:text-body"
-                placeholder="Search"
-                required
-              />
-              <button
-                type="button"
-                className="absolute end-1.5 bottom-1.5 bg-yellow-500 hover:bg-yellow-600  shadow-xs font-medium leading-5 rounded text-xs px-3 py-1.5 text-black"
-              >
-                Search
-              </button>
-            </div>
-          </form>
-        </div>
+        
       </div>
     </nav>
   );

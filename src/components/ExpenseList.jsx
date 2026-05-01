@@ -1,81 +1,244 @@
-function ExpenseList({ expenses }) {    
+import { useState } from "react";
+import { CiEdit } from "react-icons/ci";
+import { GoTrash } from "react-icons/go";
+import { IoGrid } from "react-icons/io5";
+
+function ExpenseList({
+  expenses,
+  filterDropdownOpen,
+  setFilterDropdownOpen,
+  filterCategory,
+  setFilterCategory,
+  categories,
+  deleteExpense,
+  openEditModal,
+}) {
+  const [filterDate, setFilterDate] = useState("All");
+  const getIcon = (label) => {
+    const category = categories.find((c) => c.label === label);
+    return category ? category.icon : <IoGrid />;
+  };
   return (
     expenses.length > 0 && (
-      <div className="w-[1000px] mx-auto relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default center mt-[185px]">
-        <div className="px-6 py-3 flex justify-between">
-            <div>Expenses</div>
-            <div>
-                
-<button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="inline-flex items-center justify-center text-white bg-brand box-border border border-transparent hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" type="button">
-  Dropdown button 
-  <svg class="w-4 h-4 ms-1.5 -me-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/></svg>
-</button>
-
-
-<div id="dropdown" class="z-10 hidden bg-neutral-primary-medium border border-default-medium rounded-base shadow-lg w-44">
-    <ul class="p-2 text-sm text-body font-medium" aria-labelledby="dropdownDefaultButton">
-      <li>
-        <a href="#" class="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded">Dashboard</a>
-      </li>
-      <li>
-        <a href="#" class="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded">Settings</a>
-      </li>
-      <li>
-        <a href="#" class="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded">Earnings</a>
-      </li>
-      <li>
-        <a href="#" class="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded">Sign out</a>
-      </li>
-    </ul>
-</div>
-
-                <button>sort by</button>
-            </div>
-        </div>
-        <table className="w-full text-sm text-left rtl:text-right text-body">
-          <thead className="text-sm text-body bg-neutral-secondary-soft border-b rounded-base border-default">
-            <tr>
-              <th scope="col" className="px-6 py-3 font-medium">
-                Expense name
-              </th>
-              <th scope="col" className="px-6 py-3 font-medium">
-                Category
-              </th>
-              <th scope="col" className="px-6 py-3 font-medium">
-                Date
-              </th>
-              <th scope="col" className="px-6 py-3 font-medium">
-                Amount
-              </th>
-              <th scope="col" className="px-6 py-3 font-medium"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {expenses.map((expense) => (
-              <tr className="bg-neutral-primary border-b border-default" key={expense.id}>
-                <th
-                  scope="row"
-                  className="px-6 py-4 font-medium text-heading whitespace-nowrap"
+      <div className="max-w-5xl w-full mx-auto my-15 relative overflow-hidden bg-gray-800 shadow-xs rounded-base border border-default ">
+        <div className="px-6 py-3 flex justify-between border border-default">
+          <div className="text-blue-200 items-center text-center font-bold text-3xl">
+            Expenses
+          </div>
+          <div
+            className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1"
+            id="navbar-sticky"
+          >
+            <form className="w-[350px] mx-auto">
+              <label
+                htmlFor="search"
+                className="block mb-2.5 text-sm font-medium text-heading sr-only "
+              >
+                Search
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                  <svg
+                    className="w-4 h-4 text-body"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeWidth="2"
+                      d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"
+                    />
+                  </svg>
+                </div>
+                <input
+                  type="search"
+                  id="search"
+                  className="block w-full p-3 ps-9 bg-neutral-secondary-medium text-heading text-sm rounded-base shadow-xs placeholder:text-body"
+                  placeholder="Search"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute end-1.5 bottom-1.5 bg-blue-500 hover:bg-blue-600  shadow-xs font-medium leading-5 rounded text-xs px-3 py-1.5 text-black"
                 >
-                  {expense.expenseName}
-                </th>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg">{expense.category.icon}</span>
-                    <div className="flex flex-col">
+                  Search
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div className="px-6 py-3 flex justify-between border border-default">
+          <div className="flex gap-5">
+            <div>
+              <button
+                type="button"
+                className={`items-center p-2 bg-white border rounded-lg text-sm ${filterDate === "All" ? "border-blue-400" : "hover:border-blue-400 border-gray-300"} border-2 transition-all`}
+                onClick={() => setFilterDate("All")}
+              >
+                All
+              </button>
+            </div>
+            <div>
+              <button
+                type="button"
+                className={`items-center p-2 bg-white border rounded-lg text-sm ${filterDate === "Today" ? "border-blue-400" : "hover:border-blue-400 border-gray-300"} border-2 transition-all`}
+                onClick={() => setFilterDate("Today")}
+              >
+                Today
+              </button>
+            </div>
+            <div>
+              <button
+                type="button"
+                className={`items-center p-2 bg-white border rounded-lg text-sm ${filterDate === "Week" ? "border-blue-400" : "hover:border-blue-400 border-gray-300"} border-2 transition-all`}
+                onClick={() => setFilterDate("Week")}
+              >
+                Week
+              </button>
+            </div>
+            <div>
+              <button
+                type="button"
+                className={`items-center p-2 bg-white border rounded-lg text-sm ${filterDate === "Month" ? "border-blue-400" : "hover:border-blue-400 border-gray-300"} border-2 transition-all`}
+                onClick={() => setFilterDate("Month")}
+              >
+                Month
+              </button>
+            </div>
+          </div>
+          <div className="flex gap-5">
+            <div className="flex">
+              <button
+                type="button"
+                onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
+                className="items-center p-2 bg-white border border-gray-300 rounded-lg  text-sm hover:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-gray-500">
+                    {filterCategory == "All" ? (
+                      <IoGrid />
+                    ) : (
+                      <span>{filterCategory.icon}</span>
+                    )}
+                  </span>
+                  <span className="font-medium text-gray-900">
+                    {filterCategory == "All" ? "All" : filterCategory.label}
+                  </span>
+                </div>
+              </button>
+              {filterDropdownOpen && (
+                <div className="absolute h-45 w-37 overflow-x-hidden z-20 mt-12 bg-white border border-gray-200 rounded-lg shadow-xl overflow-y-auto">
+                  <button
+                    className="w-full flex items-center text-center justify-between px-4 py-3 text-sm hover:bg-blue-50 transition-colors"
+                    type="button"
+                    onClick={() => {
+                      setFilterCategory("All");
+                      setFilterDropdownOpen(false);
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-gray-400">
+                        <IoGrid />
+                      </span>
+                      <span>All</span>
+                    </div>
+                  </button>
+                  {categories.map((category) => (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFilterCategory(category);
+                        setFilterDropdownOpen(false);
+                      }}
+                      className="flex items-center justify-between w-full px-4 py-3 text-sm hover:bg-blue-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-gray-400">{category.icon}</span>
+                        <span>{category.label}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div>
+              <button
+                type="button"
+                className="items-center p-2 bg-white border border-gray-300 rounded-lg  text-sm hover:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+              >
+                sort by
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="w-full bg-gray-900 rounded-base overflow-hidden">
+          <table className="w-full text-sm text-left rtl:text-right text-body">
+            <thead className="block w-full text-sm text-body bg-gray-900 border-b border-default">
+              <tr className="flex w-full">
+                <th className="px-6 py-3 font-bold flex-1">Expense name</th>
+                <th className="px-6 py-3 font-bold flex-1">Category</th>
+                <th className="px-6 py-3 font-bold flex-1">Date</th>
+                <th className="px-6 py-3 font-bold flex-1">Amount</th>
+                <th className="px-6 py-3 font-medium w-20"></th>
+              </tr>
+            </thead>
+
+            <tbody className="block w-full max-h-[400px] overflow-y-auto custom-scrollbar">
+              {expenses.map((expense) => (
+                <tr
+                  className="flex w-full bg-gray-900 border-b border-default text-white hover:bg-gray-800 transition-colors"
+                  key={expense.id}
+                >
+                  <th
+                    scope="row"
+                    className="px-6 py-4 font-medium whitespace-nowrap flex-1"
+                  >
+                    {expense.expenseName}
+                  </th>
+                  <td className="px-6 py-4 flex-1">
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">
+                        {typeof expense.category === "string"
+                          ? getIcon(expense.category)
+                          : expense.category.icon}
+                      </span>
                       <span className="font-medium">
-                        {expense.category.label}
+                        {typeof expense.category === "string"
+                          ? expense.category
+                          : expense.category.label}
                       </span>
                     </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4">{expense.date}</td>
-                <td className="px-6 py-4">${expense.amount}</td>
-                <td className="px-6 py-4">231</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  </td>
+                  <td className="px-6 py-4 flex-1">{expense.date}</td>
+                  <td className="px-6 py-4 flex-1 ml-8">₹{expense.amount}</td>
+                  <td className="px-6 py-4  text-gray-500">
+                    <div className="flex">
+                      <button
+                        type="button"
+                        className="mr-4 cursor-pointer text-yellow-300"
+                        onClick={() => openEditModal(expense.id, expense)}
+                      >
+                        <CiEdit />
+                      </button>
+                      <button
+                        onClick={() => deleteExpense(expense.id)}
+                        type="button"
+                        className="cursor-pointer text-red-300"
+                      >
+                        <GoTrash />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     )
   );
