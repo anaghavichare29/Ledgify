@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { CiEdit } from "react-icons/ci";
+import { FaSort } from "react-icons/fa6";
 import { GoTrash } from "react-icons/go";
+import { IoIosArrowRoundDown, IoIosArrowRoundUp } from "react-icons/io";
 import { IoGrid } from "react-icons/io5";
 
 function ExpenseList({
@@ -14,10 +16,29 @@ function ExpenseList({
   openEditModal,
 }) {
   const [filterDate, setFilterDate] = useState("All");
+  const [sortBy, setSortBy] = useState("Sort By");
+  const [sortByDropown, setSortByDropdown] = useState(false);
+
+  const sortByLabel = [
+    { id: "amtdown", label: "Amount", icon: <IoIosArrowRoundDown /> },
+    { id: "amtup", label: "Amount", icon: <IoIosArrowRoundUp /> },
+    { id: "dateup", label: "Date", icon: <IoIosArrowRoundDown /> },
+    { id: "datedown", label: "Date", icon: <IoIosArrowRoundDown /> },
+  ];
   const getIcon = (label) => {
     const category = categories.find((c) => c.label === label);
     return category ? category.icon : <IoGrid />;
   };
+
+  const filteredExpensesByCategory = expenses.filter((expense) => {
+    const categoryMatch =
+      filterCategory === "All" ||
+      (typeof expense.category === "string"
+        ? expense.category === filterCategory.label
+        : expense.category.label === filterCategory.label);      
+        return categoryMatch;
+  });
+
   return (
     expenses.length > 0 && (
       <div className="max-w-5xl w-full mx-auto my-15 relative overflow-hidden bg-gray-800 shadow-xs rounded-base border border-default ">
@@ -116,7 +137,7 @@ function ExpenseList({
               <button
                 type="button"
                 onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
-                className="items-center p-2 bg-white border border-gray-300 rounded-lg  text-sm hover:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="items-center p-2 bg-white border border-gray-300 rounded-lg  text-sm hover:border-blue-400 border-2 focus:ring-blue-100 transition-all"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-gray-500">
@@ -169,10 +190,33 @@ function ExpenseList({
             <div>
               <button
                 type="button"
-                className="items-center p-2 bg-white border border-gray-300 rounded-lg  text-sm hover:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="items-center p-2 bg-white border border-gray-300 rounded-lg  text-sm hover:border-blue-400  border-2 focus:ring-blue-100 transition-all"
+                onClick={() => setSortByDropdown(!sortByDropown)}
               >
-                sort by
+                <div className="flex items-center">
+                  <div>{sortBy === "Sort By" ? "Sort By" : sortBy.label}</div>
+                  <div>{sortBy === "Sort By" ? <FaSort /> : sortBy.icon}</div>
+                </div>
               </button>
+              {sortByDropown && (
+                <div className="absolute h-45 w-37 overflow-x-hidden z-20 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl overflow-y-auto">
+                  {sortByLabel.map((l) => (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSortBy(l);
+                        setSortByDropdown(false);
+                      }}
+                      className="flex items-center justify-between w-full px-4 py-3 text-sm hover:bg-blue-50 transition-colors"
+                    >
+                      <div className="flex items-center">
+                        <div>{l.label}</div>
+                        <div>{l.icon}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -189,7 +233,7 @@ function ExpenseList({
             </thead>
 
             <tbody className="block w-full max-h-[400px] overflow-y-auto custom-scrollbar">
-              {expenses.map((expense) => (
+              {filteredExpensesByCategory.map((expense) => (
                 <tr
                   className="flex w-full bg-gray-900 border-b border-default text-white hover:bg-gray-800 transition-colors"
                   key={expense.id}

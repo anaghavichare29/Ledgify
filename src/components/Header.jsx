@@ -11,6 +11,7 @@ function Header({openModal}) {
     "July",
     "August",
     "September",
+    "October",
     "November",
     "December",
   ];
