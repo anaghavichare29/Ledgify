@@ -125,6 +125,7 @@ function App() {
         />
         <ExpenseList
           expenses={expenses}
+          setExpenses={setExpenses}
           filterDropdownOpen={filterDropdownOpen}
           setFilterDropdownOpen={setFilterDropdownOpen}
           filterCategory={filterCategory}

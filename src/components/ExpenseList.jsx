@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CiEdit } from "react-icons/ci";
 import { FaSort } from "react-icons/fa6";
 import { GoTrash } from "react-icons/go";
@@ -7,6 +7,7 @@ import { IoGrid } from "react-icons/io5";
 
 function ExpenseList({
   expenses,
+  setExpenses,
   filterDropdownOpen,
   setFilterDropdownOpen,
   filterCategory,
@@ -21,9 +22,9 @@ function ExpenseList({
 
   const sortByLabel = [
     { id: "amtdown", label: "Amount", icon: <IoIosArrowRoundDown /> },
-    { id: "amtup", label: "Amount", icon: <IoIosArrowRoundUp /> },
-    { id: "dateup", label: "Date", icon: <IoIosArrowRoundDown /> },
+    { id: "amtup", label: "Amount", icon: <IoIosArrowRoundUp /> },    
     { id: "datedown", label: "Date", icon: <IoIosArrowRoundDown /> },
+    { id: "dateup", label: "Date", icon: <IoIosArrowRoundUp /> },
   ];
   const getIcon = (label) => {
     const category = categories.find((c) => c.label === label);
@@ -35,9 +36,26 @@ function ExpenseList({
       filterCategory === "All" ||
       (typeof expense.category === "string"
         ? expense.category === filterCategory.label
-        : expense.category.label === filterCategory.label);      
-        return categoryMatch;
+        : expense.category.label === filterCategory.label);
+    return categoryMatch;
   });
+
+  const sortedExpenses=[...filteredExpensesByCategory].sort((a,b)=>{
+    if(sortBy==="Sort By") return 0;
+    switch(sortBy.id){
+      case "amtdown":
+        return Number(b.amount)-Number(a.amount);
+      case "amtup":
+        return Number(a.amount)-Number(b.amount);
+      case "dateup":
+        return new Date(a.date) - new Date(b.date);
+      case "datedown":
+        return new Date(b.date) - new Date(a.date);
+      default:
+        return 0;
+    }
+
+  })
 
   return (
     expenses.length > 0 && (
@@ -200,6 +218,21 @@ function ExpenseList({
               </button>
               {sortByDropown && (
                 <div className="absolute h-45 w-37 overflow-x-hidden z-20 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl overflow-y-auto">
+                  <button
+                    className="w-full flex items-center text-center justify-between px-4 py-3 text-sm hover:bg-blue-50 transition-colors"
+                    type="button"
+                    onClick={() => {
+                      setSortBy("Sort By");
+                      setSortByDropdown(false);
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm">
+                        Sort By
+                      </span>
+                      <span><FaSort/></span>
+                    </div>
+                  </button>
                   {sortByLabel.map((l) => (
                     <button
                       type="button"
@@ -233,7 +266,7 @@ function ExpenseList({
             </thead>
 
             <tbody className="block w-full max-h-[400px] overflow-y-auto custom-scrollbar">
-              {filteredExpensesByCategory.map((expense) => (
+              {sortedExpenses.map((expense) => (
                 <tr
                   className="flex w-full bg-gray-900 border-b border-default text-white hover:bg-gray-800 transition-colors"
                   key={expense.id}
