@@ -20,6 +20,7 @@ function ExpenseList({
   const [filterDate, setFilterDate] = useState("All");
   const [sortBy, setSortBy] = useState("Sort By");
   const [sortByDropown, setSortByDropdown] = useState(false);
+  const [searchExpense, setSearchExpense] = useState("");
 
   const d = new Date();
   console.log(d.getDate());
@@ -34,6 +35,10 @@ function ExpenseList({
   const getIcon = (label) => {
     const category = categories.find((c) => c.label === label);
     return category ? category.icon : <IoGrid />;
+  };
+
+  const handleChange = (e) => {
+    setSearchExpense(e.target.value);
   };
 
   const filteredExpensesByCategory = expenses.filter((expense) => {
@@ -65,8 +70,10 @@ function ExpenseList({
         expenseDate.getMonth() === today.getMonth() &&
         expenseDate.getFullYear() === today.getFullYear();
     }
-
-    return categoryMatch && dateMatch;
+    const searchedExpense =
+      searchExpense === "" ||
+      expense.expenseName.toLowerCase().includes(searchExpense.toLowerCase());
+    return categoryMatch && dateMatch && searchedExpense;
   });
 
   const sortedExpenses = [...filteredExpensesByCategory].sort((a, b) => {
@@ -124,7 +131,9 @@ function ExpenseList({
                 </div>
                 <input
                   type="search"
-                  id="search"                  
+                  value={searchExpense}
+                  onChange={handleChange}
+                  id="search"
                   className="block w-full p-3 ps-9 bg-neutral-secondary-medium text-heading text-sm rounded-base shadow-xs placeholder:text-body"
                   placeholder="Search"
                   required
