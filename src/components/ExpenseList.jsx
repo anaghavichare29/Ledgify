@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { CiEdit } from "react-icons/ci";
 import { FaSort } from "react-icons/fa6";
+import { GiConsoleController } from "react-icons/gi";
 import { GoTrash } from "react-icons/go";
 import { IoIosArrowRoundDown, IoIosArrowRoundUp } from "react-icons/io";
 import { IoGrid } from "react-icons/io5";
@@ -20,9 +21,13 @@ function ExpenseList({
   const [sortBy, setSortBy] = useState("Sort By");
   const [sortByDropown, setSortByDropdown] = useState(false);
 
+  const d = new Date();
+  console.log(d.getDate());
+  console.log(d.getMonth());
+
   const sortByLabel = [
     { id: "amtdown", label: "Amount", icon: <IoIosArrowRoundDown /> },
-    { id: "amtup", label: "Amount", icon: <IoIosArrowRoundUp /> },    
+    { id: "amtup", label: "Amount", icon: <IoIosArrowRoundUp /> },
     { id: "datedown", label: "Date", icon: <IoIosArrowRoundDown /> },
     { id: "dateup", label: "Date", icon: <IoIosArrowRoundUp /> },
   ];
@@ -37,16 +42,40 @@ function ExpenseList({
       (typeof expense.category === "string"
         ? expense.category === filterCategory.label
         : expense.category.label === filterCategory.label);
-    return categoryMatch;
+
+    const today = new Date();
+
+    const expenseDate = new Date(expense.date);
+
+    //if u don't do this timestamp change hojayega and 'today' ka filter will fail as timestamps won't be identical
+    today.setHours(0, 0, 0, 0);
+    expenseDate.setHours(0, 0, 0, 0);
+
+    let dateMatch = true;
+
+    if (filterDate === "Today") {
+      dateMatch = expenseDate.getTime() === today.getTime();
+    } else if (filterDate === "Week") {
+      const weekAgo = new Date(today);
+      weekAgo.setDate(today.getDate() - 7);
+
+      dateMatch = expenseDate >= weekAgo && expenseDate <= today;
+    } else if (filterDate === "Month") {
+      dateMatch =
+        expenseDate.getMonth() === today.getMonth() &&
+        expenseDate.getFullYear() === today.getFullYear();
+    }
+
+    return categoryMatch && dateMatch;
   });
 
-  const sortedExpenses=[...filteredExpensesByCategory].sort((a,b)=>{
-    if(sortBy==="Sort By") return 0;
-    switch(sortBy.id){
+  const sortedExpenses = [...filteredExpensesByCategory].sort((a, b) => {
+    if (sortBy === "Sort By") return 0;
+    switch (sortBy.id) {
       case "amtdown":
-        return Number(b.amount)-Number(a.amount);
+        return Number(b.amount) - Number(a.amount);
       case "amtup":
-        return Number(a.amount)-Number(b.amount);
+        return Number(a.amount) - Number(b.amount);
       case "dateup":
         return new Date(a.date) - new Date(b.date);
       case "datedown":
@@ -54,8 +83,7 @@ function ExpenseList({
       default:
         return 0;
     }
-
-  })
+  });
 
   return (
     expenses.length > 0 && (
@@ -96,7 +124,7 @@ function ExpenseList({
                 </div>
                 <input
                   type="search"
-                  id="search"
+                  id="search"                  
                   className="block w-full p-3 ps-9 bg-neutral-secondary-medium text-heading text-sm rounded-base shadow-xs placeholder:text-body"
                   placeholder="Search"
                   required
@@ -227,10 +255,10 @@ function ExpenseList({
                     }}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-sm">
-                        Sort By
+                      <span className="text-sm">Sort By</span>
+                      <span>
+                        <FaSort />
                       </span>
-                      <span><FaSort/></span>
                     </div>
                   </button>
                   {sortByLabel.map((l) => (
@@ -265,7 +293,7 @@ function ExpenseList({
               </tr>
             </thead>
 
-            <tbody className="block w-full max-h-[400px] overflow-y-auto custom-scrollbar">
+            <tbody className="block w-full max-h-[315px] overflow-y-auto custom-scrollbar">
               {sortedExpenses.map((expense) => (
                 <tr
                   className="flex w-full bg-gray-900 border-b border-default text-white hover:bg-gray-800 transition-colors"
