@@ -64,7 +64,7 @@ function ExpenseForm({
         expenseName: formData.expenseName,
         amount: formData.amount,
         date: formData.date,
-        category: formCategory,
+        category: formCategory.label,
       };
       handleEditExpense(updatedExpense);
     }

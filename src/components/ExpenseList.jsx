@@ -20,10 +20,6 @@ function ExpenseList({
   const [sortByDropown, setSortByDropdown] = useState(false);
   const [searchExpense, setSearchExpense] = useState("");
 
-  const d = new Date();
-  console.log(d.getDate());
-  console.log(d.getMonth());
-
   const sortByLabel = [
     { id: "amtdown", label: "Amount", icon: <IoIosArrowRoundDown /> },
     { id: "amtup", label: "Amount", icon: <IoIosArrowRoundUp /> },

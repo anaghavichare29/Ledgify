@@ -73,7 +73,10 @@ function App() {
   const [formDropdownOpen, setFormDropdownOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState("All");
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
-  const [budget, setBudget] = useState(10000);
+  const [budget, setBudget] = useState(() => {
+    const savedBudget = localStorage.getItem("budget");
+    return savedBudget ? Number(savedBudget) : 10000;
+  });
 
   useEffect(() => {
     try {
@@ -82,6 +85,10 @@ function App() {
       console.error("error saving expenses to local storage", error);
     }
   }, [expenses]);
+
+  useEffect(() => {
+    localStorage.setItem("budget", budget);
+  }, [budget]);
 
   const handleOpenModal = () => {
     setModalType("Add");
@@ -105,7 +112,7 @@ function App() {
     setEditExpense(expenseData);
     setIsModalOpen(id);
   };
-  const handelEditExpense = (updatedExpense) => {
+  const handleEditExpense = (updatedExpense) => {
     setExpenses((prev) =>
       prev.map((p) => (p.id === updatedExpense.id ? updatedExpense : p)),
     );
@@ -124,7 +131,7 @@ function App() {
           setFormCategory={setFormCategory}
           categories={categories}
           modalType={modalType}
-          handleEditExpense={handelEditExpense}
+          handleEditExpense={handleEditExpense}
           editExpense={editExpense}
         />
         <Budget expenses={expenses} budget={budget} setBudget={setBudget} />
@@ -133,7 +140,7 @@ function App() {
             <CategoryDistribution expenses={expenses} budget={budget} />
           </div>
           <div className="w-1/2 flex flex-col items-center justify-center">
-            <MonthlySummary expenses={expenses} budget={budget}/>
+            <MonthlySummary expenses={expenses} budget={budget} />
           </div>
         </div>
         <ExpenseList

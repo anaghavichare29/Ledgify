@@ -15,12 +15,21 @@ function Budget({ expenses, budget, setBudget }) {
     "December",
   ];
   const month = monthNames[d.getMonth()];
+
   const handleChange = (e) => {
     setBudget(Number(e.target.value));
   };
+
+  const currentMonth = d.getMonth();
+  const currentYear = d.getFullYear();
+
   let totalSpent = 0;
   expenses.forEach((expense) => {
-    totalSpent += Number(expense.amount);
+    const expenseDate = new Date(expense.date);
+    const isCurrentMonth =
+      expenseDate.getMonth() === currentMonth &&
+      expenseDate.getFullYear() === currentYear;
+    if (isCurrentMonth) totalSpent += Number(expense.amount);
   });
   const remainingBal = budget - totalSpent;
   const spentPercentage =
