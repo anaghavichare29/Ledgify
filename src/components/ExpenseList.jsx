@@ -1,14 +1,12 @@
-import { useEffect, useState } from "react";
+import {useState } from "react";
 import { CiEdit } from "react-icons/ci";
 import { FaSort } from "react-icons/fa6";
-import { GiConsoleController } from "react-icons/gi";
 import { GoTrash } from "react-icons/go";
 import { IoIosArrowRoundDown, IoIosArrowRoundUp } from "react-icons/io";
 import { IoGrid } from "react-icons/io5";
 
 function ExpenseList({
-  expenses,
-  setExpenses,
+  expenses,  
   filterDropdownOpen,
   setFilterDropdownOpen,
   filterCategory,

@@ -11,6 +11,9 @@ import { BiSolidCameraMovie } from "react-icons/bi";
 import { IoGrid } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import Budget from "./components/Budget";
+import CategoryDistribution from "./components/CategoryDistribution";
+import MonthlySummary from "./components/MonthlySummary";
 
 function App() {
   const STORAGE_KEY = "expense-list";
@@ -70,6 +73,7 @@ function App() {
   const [formDropdownOpen, setFormDropdownOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState("All");
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
+  const [budget, setBudget] = useState(10000);
 
   useEffect(() => {
     try {
@@ -120,9 +124,18 @@ function App() {
           setFormCategory={setFormCategory}
           categories={categories}
           modalType={modalType}
-          handleEditExpense={handelEditExpense}          
+          handleEditExpense={handelEditExpense}
           editExpense={editExpense}
         />
+        <Budget expenses={expenses} budget={budget} setBudget={setBudget} />
+        <div className="flex w-full">
+          <div className="w-1/2 flex flex-col items-center justify-center">
+            <CategoryDistribution expenses={expenses} budget={budget} />
+          </div>
+          <div className="w-1/2 flex flex-col items-center justify-center">
+            <MonthlySummary expenses={expenses} budget={budget}/>
+          </div>
+        </div>
         <ExpenseList
           expenses={expenses}
           setExpenses={setExpenses}
